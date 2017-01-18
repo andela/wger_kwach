@@ -190,7 +190,7 @@ def process_log_entries(logs):
         if entry.weight != max_weight[entry.date][entry.reps]:
             continue
         if (entry.date,
-           entry.reps, entry.weight) in entry_list[entry.reps]['seen']:
+            entry.reps, entry.weight) in entry_list[entry.reps]['seen']:
             continue
 
         entry_list[entry.reps]['seen'].append(
