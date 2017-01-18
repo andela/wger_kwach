@@ -20,7 +20,7 @@ class Simple(FunkLoadTestCase):
         # The description should be set in the configuration file
         server_url = self.server_url
 
-        # Exercises        
+        # Exercises
         self.get(server_url + '/en/exercise/overview/', description='Get exercise overview')
         self.get(server_url + '/en/exercise/muscle/overview/', description='Get muscle overview')
         self.get(server_url + '/de/exercise/79/view/', description='Get exercise page')

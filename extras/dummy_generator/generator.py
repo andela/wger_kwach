@@ -452,7 +452,7 @@ if hasattr(args, 'number_nutrition_plans'):
 
     # Total meals per plan
     total_meals = 4
-    
+
     for user in userlist:
         print('   - generating for {0}'.format(user.username))
 
