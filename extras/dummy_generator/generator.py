@@ -473,6 +473,7 @@ if hasattr(args, 'number_nutrition_plans'):
                 meal.save()
                 for k in range(0, random.randint(1,5)):
                     ingredient = random.choice(ingredientList)
-                    meal_item = MealItem(meal=meal, ingredient=ingredient, weight_unit=None, order=order, amount=random.randint(10, 250))
+                    meal_item = MealItem(meal=meal, ingredient=ingredient,
+                                         weight_unit=None, order=order, amount=random.randint(10, 250))
                     meal_item.save()
                 order = order + 1
