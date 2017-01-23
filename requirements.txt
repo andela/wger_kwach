@@ -36,3 +36,4 @@ rjsmin==1.0.12
 six==1.10.0
 snowballstemmer==1.2.1
 Sphinx==1.5.1
+whitenoise==3.2.3
