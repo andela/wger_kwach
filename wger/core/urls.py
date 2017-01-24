@@ -16,7 +16,6 @@
 
 
 from django.conf.urls import (
-    patterns,
     url,
     include
 )
@@ -35,21 +34,21 @@ from wger.core.views import (
 
 # sub patterns for languages
 patterns_language = [
-   url(r'^list$',
-       languages.LanguageListView.as_view(),
-       name='overview'),
-   url(r'^(?P<pk>\d+)/view$',
-       languages.LanguageDetailView.as_view(),
-       name='view'),
-   url(r'^(?P<pk>\d+)/delete$',
-       languages.LanguageDeleteView.as_view(),
-       name='delete'),
-   url(r'^(?P<pk>\d+)/edit',
-       languages.LanguageEditView.as_view(),
-       name='edit'),
-   url(r'^add$',
-       languages.LanguageCreateView.as_view(),
-       name='add'),
+    url(r'^list$',
+        languages.LanguageListView.as_view(),
+        name='overview'),
+    url(r'^(?P<pk>\d+)/view$',
+        languages.LanguageDetailView.as_view(),
+        name='view'),
+    url(r'^(?P<pk>\d+)/delete$',
+        languages.LanguageDeleteView.as_view(),
+        name='delete'),
+    url(r'^(?P<pk>\d+)/edit',
+        languages.LanguageEditView.as_view(),
+        name='edit'),
+    url(r'^add$',
+        languages.LanguageCreateView.as_view(),
+        name='add'),
 ]
 
 # sub patterns for user
@@ -97,7 +96,8 @@ patterns_user = [
         user.UserListView.as_view(),
         name='list'),
 
-    # Password reset is implemented by Django, no need to cook our own soup here
+    # Password reset is implemented by Django,
+    # no need to cook our own soup here
     # (besides the templates)
     url(r'^password/change$',
         views.password_change,
@@ -204,6 +204,7 @@ urlpatterns = [
     url(r'^language/', include(patterns_language, namespace="language")),
     url(r'^user/', include(patterns_user, namespace="user")),
     url(r'^license/', include(patterns_license, namespace="license")),
-    url(r'^repetition-unit/', include(patterns_repetition_units, namespace="repetition-unit")),
+    url(r'^repetition-unit/',
+        include(patterns_repetition_units, namespace="repetition-unit")),
     url(r'^weight-unit/', include(patterns_weight_units, namespace="weight-unit")),
 ]

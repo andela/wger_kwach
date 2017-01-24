@@ -44,7 +44,8 @@ class MealCreateView(WgerFormMixin, CreateView):
     owner_object = {'pk': 'plan_pk', 'class': NutritionPlan}
 
     def form_valid(self, form):
-        plan = get_object_or_404(NutritionPlan, pk=self.kwargs['plan_pk'], user=self.request.user)
+        plan = get_object_or_404(NutritionPlan, pk=self.kwargs[
+                                 'plan_pk'], user=self.request.user)
         form.instance.plan = plan
         form.instance.order = 1
         return super(MealCreateView, self).form_valid(form)
@@ -56,7 +57,8 @@ class MealCreateView(WgerFormMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(MealCreateView, self).get_context_data(**kwargs)
         context['form_action'] = reverse('nutrition:meal:add',
-                                         kwargs={'plan_pk': self.kwargs['plan_pk']})
+                                         kwargs={
+                                         'plan_pk': self.kwargs['plan_pk']})
 
         return context
 

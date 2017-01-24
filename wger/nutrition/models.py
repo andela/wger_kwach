@@ -20,7 +20,8 @@ from decimal import Decimal
 from django.db import models
 
 from django.template.loader import render_to_string
-from django.template.defaultfilters import slugify  # django.utils.text.slugify in django 1.5!
+# django.utils.text.slugify in django 1.5!
+from django.template.defaultfilters import slugify
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
@@ -80,7 +81,7 @@ class NutritionPlan(models.Model):
     description = models.TextField(max_length=2000,
                                    blank=True,
                                    verbose_name=_('Description'),
-                                   help_text=_('A description of the goal of the plan, e.g. '
+                                   help_text=_('A description of the goal of the plan,e.g. '
                                                '"Gain mass" or "Prepare for summer"'))
     has_goal_calories = models.BooleanField(verbose_name=_('Use daily calories'),
                                             default=False,
@@ -139,13 +140,15 @@ class NutritionPlan(models.Model):
         if energy:
             for key in result['percent'].keys():
                 result['percent'][key] = \
-                    result['total'][key] * ENERGY_FACTOR[key][unit] / energy * 100
+                    result['total'][key] * \
+                    ENERGY_FACTOR[key][unit] / energy * 100
 
         # Per body weight
         weight_entry = self.get_closest_weight_entry()
         if weight_entry:
             for key in result['per_kg'].keys():
-                result['per_kg'][key] = result['total'][key] / weight_entry.weight
+                result['per_kg'][key] = result[
+                    'total'][key] / weight_entry.weight
 
         # Only 2 decimal places, anything else doesn't make sense
         for key in result.keys():
@@ -166,7 +169,8 @@ class NutritionPlan(models.Model):
             .filter(date__lte=target).order_by('-date').first()
         if closest_entry_gte is None or closest_entry_lte is None:
             return closest_entry_gte or closest_entry_lte
-        if abs(closest_entry_gte.date - target) < abs(closest_entry_lte.date - target):
+        if abs(closest_entry_gte.date - target) < abs(
+                closest_entry_lte.date - target):
             return closest_entry_gte
         else:
             return closest_entry_lte
@@ -273,7 +277,8 @@ class Ingredient(AbstractLicenseModel, models.Model):
     carbohydrates = models.DecimalField(decimal_places=3,
                                         max_digits=6,
                                         verbose_name=_('Carbohydrates'),
-                                        help_text=_('In g per 100g of product'),
+                                        help_text=_(
+                                            'In g per 100g of product'),
                                         validators=[MinValueValidator(0),
                                                     MaxValueValidator(100)])
 
@@ -281,8 +286,10 @@ class Ingredient(AbstractLicenseModel, models.Model):
                                               max_digits=6,
                                               blank=True,
                                               null=True,
-                                              verbose_name=_('Sugar content in carbohydrates'),
-                                              help_text=_('In g per 100g of product'),
+                                              verbose_name=_(
+                                                  'Sugar content in carbohydrates'),
+                                              help_text=_(
+                                                  'In g per 100g of product'),
                                               validators=[MinValueValidator(0),
                                                           MaxValueValidator(100)])
 
@@ -297,8 +304,10 @@ class Ingredient(AbstractLicenseModel, models.Model):
                                         max_digits=6,
                                         blank=True,
                                         null=True,
-                                        verbose_name=_('Saturated fat content in fats'),
-                                        help_text=_('In g per 100g of product'),
+                                        verbose_name=_(
+                                            'Saturated fat content in fats'),
+                                        help_text=_(
+                                            'In g per 100g of product'),
                                         validators=[MinValueValidator(0),
                                                     MaxValueValidator(100)])
 
@@ -350,7 +359,8 @@ class Ingredient(AbstractLicenseModel, models.Model):
 
         energy_carbohydrates = 0
         if self.carbohydrates:
-            energy_carbohydrates = self.carbohydrates * ENERGY_FACTOR['carbohydrates']['kg']
+            energy_carbohydrates = self.carbohydrates * \
+                ENERGY_FACTOR['carbohydrates']['kg']
 
         energy_fat = 0
         if self.fat:
@@ -362,8 +372,10 @@ class Ingredient(AbstractLicenseModel, models.Model):
 
         # Compare the values, but be generous
         if self.energy:
-            energy_upper = self.energy * (1 + (self.ENERGY_APPROXIMATION / Decimal(100.0)))
-            energy_lower = self.energy * (1 - (self.ENERGY_APPROXIMATION / Decimal(100.0)))
+            energy_upper = self.energy * \
+                (1 + (self.ENERGY_APPROXIMATION / Decimal(100.0)))
+            energy_lower = self.energy * \
+                (1 - (self.ENERGY_APPROXIMATION / Decimal(100.0)))
 
             if not ((energy_upper > energy_calculated) and (energy_calculated > energy_lower)):
                 raise ValidationError(_('Total energy is not the approximate sum of the energy '
@@ -388,13 +400,14 @@ class Ingredient(AbstractLicenseModel, models.Model):
         Compare ingredients based on their values, not like django on their PKs
         '''
 
-        logger.debug('Overwritten behaviour: comparing ingredients on values, not PK.')
+        logger.debug(
+            'Overwritten behaviour: comparing ingredients on values, not PK.')
         equal = True
         if isinstance(other, self.__class__):
             for i in self._meta.fields:
                 if (hasattr(self, i.name) and hasattr(other, i.name) and
-                    (getattr(self, i.name, None) != getattr(other, i.name, None))):
-                        equal = False
+                        (getattr(self, i.name, None) != getattr(other, i.name, None))):
+                    equal = False
         else:
             equal = False
         return equal
@@ -423,9 +436,11 @@ class Ingredient(AbstractLicenseModel, models.Model):
         submitted ingredients only)
         '''
         if self.user and self.user.email:
-            translation.activate(self.user.userprofile.notification_language.short_name)
+            translation.activate(
+                self.user.userprofile.notification_language.short_name)
             url = request.build_absolute_uri(self.get_absolute_url())
-            subject = _('Ingredient was successfully added to the general database')
+            subject = _(
+                'Ingredient was successfully added to the general database')
             context = {
                 'ingredient': self.name,
                 'url': url,
@@ -564,7 +579,8 @@ class Meal(models.Model):
 
         # Only 2 decimal places, anything else doesn't make sense
         for i in nutritional_info:
-            nutritional_info[i] = Decimal(nutritional_info[i]).quantize(TWOPLACES)
+            nutritional_info[i] = Decimal(
+                nutritional_info[i]).quantize(TWOPLACES)
 
         return nutritional_info
 
@@ -640,9 +656,12 @@ class MealItem(models.Model):
                            self.weight_unit.amount *
                            self.weight_unit.gram)
 
-        nutritional_info['energy'] += self.ingredient.energy * item_weight / 100
-        nutritional_info['protein'] += self.ingredient.protein * item_weight / 100
-        nutritional_info['carbohydrates'] += self.ingredient.carbohydrates * item_weight / 100
+        nutritional_info[
+            'energy'] += self.ingredient.energy * item_weight / 100
+        nutritional_info[
+            'protein'] += self.ingredient.protein * item_weight / 100
+        nutritional_info[
+            'carbohydrates'] += self.ingredient.carbohydrates * item_weight / 100
 
         if self.ingredient.carbohydrates_sugar:
             nutritional_info['carbohydrates_sugar'] += self.ingredient.carbohydrates_sugar \
@@ -651,13 +670,16 @@ class MealItem(models.Model):
         nutritional_info['fat'] += self.ingredient.fat * item_weight / 100
 
         if self.ingredient.fat_saturated:
-            nutritional_info['fat_saturated'] += self.ingredient.fat_saturated * item_weight / 100
+            nutritional_info[
+                'fat_saturated'] += self.ingredient.fat_saturated * item_weight / 100
 
         if self.ingredient.fibres:
-            nutritional_info['fibres'] += self.ingredient.fibres * item_weight / 100
+            nutritional_info[
+                'fibres'] += self.ingredient.fibres * item_weight / 100
 
         if self.ingredient.sodium:
-            nutritional_info['sodium'] += self.ingredient.sodium * item_weight / 100
+            nutritional_info[
+                'sodium'] += self.ingredient.sodium * item_weight / 100
 
         # If necessary, convert weight units
         if not use_metric:
@@ -672,6 +694,7 @@ class MealItem(models.Model):
 
         # Only 2 decimal places, anything else doesn't make sense
         for i in nutritional_info:
-            nutritional_info[i] = Decimal(nutritional_info[i]).quantize(TWOPLACES)
+            nutritional_info[i] = Decimal(
+                nutritional_info[i]).quantize(TWOPLACES)
 
         return nutritional_info
