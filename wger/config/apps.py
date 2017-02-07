@@ -21,5 +21,3 @@ class ConfigConfig(AppConfig):
     name = 'wger.config'
     verbose_name = "Config"
 
-    def ready(self):
-        pass
