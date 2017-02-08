@@ -29,6 +29,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext_lazy, ugettext as _
 from django.views.generic import DeleteView, UpdateView
+from django.core.cache import cache
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, cm
@@ -49,6 +50,7 @@ from wger.utils.generic_views import WgerFormMixin, WgerDeleteMixin
 from wger.utils.helpers import check_token, make_token
 from wger.utils.pdf import styleSheet
 from wger.utils.language import load_language
+from wger.utils.cache import cache_mapper
 
 
 logger = logging.getLogger(__name__)
@@ -65,6 +67,19 @@ def overview(request):
     template_data.update(csrf(request))
 
     plans = NutritionPlan.objects.filter(user=request.user)
+    for plan in plans:
+        # Check if total calorie values in cache
+        # If not, add them to cache
+        # If it exists, load value from cache
+        cached = cache.get(cache_mapper.get_nutrition_plan_key(int(plan.id)))
+        if not cached:
+            cache.set(cache_mapper.get_nutrition_plan_key(int(plan.id)),
+                      plan.get_nutritional_values()['total']['energy'])
+            plan.cached = cache.get(
+                cache_mapper.get_nutrition_plan_key(int(plan.id)))
+        else:
+            plan.cached = cached
+
     template_data['plans'] = plans
 
     return render(request, 'plan/overview.html', template_data)
