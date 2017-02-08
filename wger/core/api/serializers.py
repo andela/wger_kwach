@@ -17,6 +17,8 @@
 
 from rest_framework import serializers
 
+from django.contrib.auth.models import User
+
 from wger.core.models import (
     UserProfile,
     Language,
@@ -79,3 +81,12 @@ class WeightUnitSerializer(serializers.ModelSerializer):
     '''
     class Meta:
         model = WeightUnit
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password')
+        write_only_fields = ('password',)
+        read_only_fields = ('is_staff', 'is_superuser',
+                            'is_active', 'date_joined',)
