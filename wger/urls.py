@@ -117,6 +117,8 @@ router.register(r'setting-weightunit', core_api_views.WeightUnitViewSet,
 # Exercises app
 router.register(r'exercise', exercises_api_views.ExerciseViewSet,
                 base_name='exercise')
+router.register(r'exercises-info', exercises_api_views.ExerciseInfoSet,
+                base_name='exercise-info')
 router.register(
     r'equipment', exercises_api_views.EquipmentViewSet, base_name='api')
 router.register(
