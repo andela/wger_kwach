@@ -14,11 +14,18 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with Workout Manager.  If not, see <http://www.gnu.org/licenses/>.
-
 from django.contrib.auth.models import User
 from rest_framework import viewsets
+from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
+
+from django.utils import translation
+from django.contrib.auth import authenticate
+
+from wger.core.models import Language
+from wger.config.models import GymConfig
+from wger.config.models import GymUserConfig
 
 from wger.core.models import (
     UserProfile,
@@ -33,7 +40,8 @@ from wger.core.api.serializers import (
     DaysOfWeekSerializer,
     LicenseSerializer,
     RepetitionUnitSerializer,
-    WeightUnitSerializer
+    WeightUnitSerializer,
+    UserSerializer
 )
 from wger.core.api.serializers import UserprofileSerializer
 from wger.utils.permissions import UpdateOnlyPermission, WgerPermission
@@ -121,3 +129,34 @@ class WeightUnitViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = WeightUnitSerializer
     ordering_fields = '__all__'
     filter_fields = ('name', )
+
+
+class UserRegistrationViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.is_valid():
+            new_user = User.objects.create(**serializer.validated_data)
+            new_user.set_password(str(serializer.validated_data['password']))
+            new_user.save()
+
+            language = Language.objects.get(
+                short_name=translation.get_language())
+            new_user.userprofile.notification_language = language
+
+            # Set default gym, if needed
+            gym_config = GymConfig.objects.get(pk=1)
+            if gym_config.default_gym:
+                new_user.userprofile.gym = gym_config.default_gym
+
+                # Create gym user configuration object
+                config = GymUserConfig()
+                config.gym = gym_config.default_gym
+                config.new_user = new_user
+                config.save()
+
+            new_user.userprofile.save()
+            return Response(UserSerializer(new_user).data)
