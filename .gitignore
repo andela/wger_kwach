@@ -48,6 +48,7 @@ coverage.xml
 *.log
 settings*.py
 *.sqlite
+*.DS_Store
 /CACHE
 
 # Sphinx documentation
