@@ -65,6 +65,6 @@ script:
 
   # Code coverage
   - coverage report
- # slack notifications
+# Add Slack integration
 notifications:
   slack: andela:B9inGhSPGlzCHKg4s0qMrNCu
