@@ -452,9 +452,9 @@ def api_key(request):
 def get_fitbit(request):
     """  fitbit integration with wger to retrieve weight """
     code = None
-    client_id = "2284XL"
-    client_secret = "13f357cf3f2cfa90e3f41415bfcf19be"
-    call_back = "http://127.0.0.1:8000/en/user/fitbit_sync"
+    client_id = settings.WGER_SETTINGS['FITBIT_CLIENT_ID']
+    client_secret = settings.WGER_SETTINGS['FITBIT_CLIENT_SECRET']
+    call_back = settings.WGER_SETTINGS['FITBIT_CLIENT_CALLBACK']
     fitbit_client = FitbitOauth2Client(client_id, client_secret)
     url = fitbit_client.authorize_token_url(redirect_uri=call_back)
 
@@ -466,8 +466,6 @@ def get_fitbit(request):
         # use fitbit library to get access token an retrieve weight
         try:
             token = fitbit_client.fetch_access_token(token_code)
-            print(type(token))
-            print(token)
             if "access_token" in token:
                 fit_req = Fitbit(client_id=client_id,
                                  client_secret=client_secret,
@@ -498,7 +496,7 @@ def get_fitbit(request):
                 messages.warning(request,
                                  _("Something went wrong"))
             return render(request, 'user/fit_bit.html', template)
-        except Exception as e:
+        except:
             messages.warning(request,
                              _("Something went wrong, please try again later"))
 
