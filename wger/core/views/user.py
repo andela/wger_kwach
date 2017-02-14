@@ -484,21 +484,23 @@ def get_fitbit(request):
                     fetched_weight.user = request.user
                     fetched_weight.date = datetime.date.today()
                     fetched_weight.save()
+                    messages.success(request,
+                                     _('Successfully synced weight data.'))
                 except IntegrityError as e:
-                    print(e)
                     if "UNIQUE constraint" in str(e):
-                        print("All ready synced for today")
+                        messages.info(request,
+                                      _('Already synced up for today.'))
                 # redirect to weight overview page if operations successful
                 return HttpResponseRedirect(
                     reverse('weight:overview',
                             kwargs={'username': request.user.username}))
             else:
-                print("something went wrong please wait and try again")
-                return render(request, 'user/fit_bit.html', template)
+                messages.warning(request,
+                                 _("Something went wrong"))
+            return render(request, 'user/fit_bit.html', template)
         except Exception as e:
-            print("technical difficulties connecting to fitbit,"
-                  " please try again later")
-            print(e)
+            messages.warning(request,
+                             _("Something went wrong, please try again later"))
 
     return render(request, 'user/fit_bit.html', template)
 
