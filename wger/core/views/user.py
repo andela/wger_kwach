@@ -453,7 +453,6 @@ def get_fitbit(request):
     """  fitbit integration with wger to retrieve weight """
     code = None
     client_id = settings.WGER_SETTINGS['FITBIT_CLIENT_ID']
-    print(client_id, settings.__dir__())
     client_secret = settings.WGER_SETTINGS['FITBIT_CLIENT_SECRET']
     call_back = settings.WGER_SETTINGS['FITBIT_CLIENT_CALLBACK']
     fitbit_client = FitbitOauth2Client(client_id, client_secret)
