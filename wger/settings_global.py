@@ -368,5 +368,8 @@ WGER_SETTINGS = {
     'ALLOW_REGISTRATION': True,
     'ALLOW_GUEST_USERS': True,
     'EMAIL_FROM': 'wger Workout Manager <wger@example.com>',
-    'TWITTER': False
+    'TWITTER': False,
+    'FITBIT_CLIENT_ID': "2284XL",
+    'FITBIT_CLIENT_SECRET': "13f357cf3f2cfa90e3f41415bfcf19be",
+    'FITBIT_CLIENT_CALLBACK': "http://127.0.0.1:8000/en/user/fitbit_sync"
 }
