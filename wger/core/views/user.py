@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 
 import logging
+import datetime
+from fitbit import FitbitOauth2Client, Fitbit
 
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponseForbidden
@@ -37,6 +39,7 @@ from django.views.generic import (
     ListView
 )
 from django.conf import settings
+from django.db import IntegrityError
 from rest_framework.authtoken.models import Token
 
 from wger.utils.constants import USER_TAB
@@ -444,12 +447,70 @@ def api_key(request):
     return render(request, 'user/api_key.html', context)
 
 
-class UserDetailView(LoginRequiredMixin, WgerMultiplePermissionRequiredMixin, DetailView):
+# this view method will handle the fitbit  weight retrieval
+@login_required
+def get_fitbit(request):
+    """  fitbit integration with wger to retrieve weight """
+    code = None
+    client_id = "2284XL"
+    client_secret = "13f357cf3f2cfa90e3f41415bfcf19be"
+    call_back = "http://127.0.0.1:8000/en/user/fitbit_sync"
+    fitbit_client = FitbitOauth2Client(client_id, client_secret)
+    url = fitbit_client.authorize_token_url(redirect_uri=call_back)
+
+    template = {"fitbit_url": url[0]}
+
+    # retrieve the code from the redirect URL
+    if "code" in request.GET:
+        token_code = request.GET["code"]
+        # use fitbit library to get access token an retrieve weight
+        try:
+            token = fitbit_client.fetch_access_token(token_code)
+            print(type(token))
+            print(token)
+            if "access_token" in token:
+                fit_req = Fitbit(client_id=client_id,
+                                 client_secret=client_secret,
+                                 access_token=token["access_token"],
+                                 refresh_token=token["refresh_token"],
+                                 system="en_UK")
+                user_prof = fit_req.user_profile_get()
+                weight = user_prof["user"]["weight"]
+                # add the user weight to the database
+                # initialise the weight entry class for saving to DB
+                try:
+                    fetched_weight = WeightEntry()
+                    fetched_weight.weight = weight
+                    fetched_weight.user = request.user
+                    fetched_weight.date = datetime.date.today()
+                    fetched_weight.save()
+                except IntegrityError as e:
+                    print(e)
+                    if "UNIQUE constraint" in str(e):
+                        print("All ready synced for today")
+                # redirect to weight overview page if operations successful
+                return HttpResponseRedirect(
+                    reverse('weight:overview',
+                            kwargs={'username': request.user.username}))
+            else:
+                print("something went wrong please wait and try again")
+                return render(request, 'user/fit_bit.html', template)
+        except Exception as e:
+            print("technical difficulties connecting to fitbit,"
+                  " please try again later")
+            print(e)
+
+    return render(request, 'user/fit_bit.html', template)
+
+
+class UserDetailView(LoginRequiredMixin, WgerMultiplePermissionRequiredMixin,
+                     DetailView):
     '''
     User overview for gyms
     '''
     model = User
-    permission_required = ('gym.manage_gym', 'gym.manage_gyms', 'gym.gym_trainer')
+    permission_required = ('gym.manage_gym', 'gym.manage_gyms',
+                           'gym.gym_trainer')
     template_name = 'user/overview.html'
     context_object_name = 'current_user'
 
