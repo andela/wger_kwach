@@ -30,7 +30,12 @@
 
 
 {% block options %}
+<div class = "btn-block">
 <a href="{% url 'manager:workout:add' %}" class="btn btn-success btn-sm">
     {% trans "Add workout" %}
 </a>
+<a href="{% url 'manager:workout:add' %}" class="btn btn-success btn-sm">
+    {% trans "Import workout" %}
+</a>
+</div>
 {% endblock %}
