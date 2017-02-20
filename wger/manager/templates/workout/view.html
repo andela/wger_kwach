@@ -154,12 +154,12 @@ an appointment for each training day with the appropriate exercises.{% endblockt
                 <p>{% trans "Export this as json/CSV file." %}</p>
                 <p>{% blocktrans %}Export json/CSV file and view it in an editor.{% endblocktrans %}</p>
                 <p>
-                <a href="{% url 'manager:workout:ical' workout.id uid token %}" class="btn btn-block btn-default">
+                <a href="{% url 'manager:workout:json' workout.id uid token %}" class="btn btn-block btn-default">
                    {% trans "Export json file" %}
                 </a>
                 </p>
                 <p>
-                <a href="{% url 'manager:workout:ical' workout.id uid token %}" class="btn btn-block btn-default">
+                <a href="{% url 'manager:workout:csv' workout.id uid token %}" class="btn btn-block btn-default">
                    {% trans "Export CSV file" %}
                 </a>
                 </p>

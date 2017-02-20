@@ -20,6 +20,7 @@ from django.contrib.auth.decorators import login_required
 
 from wger.manager.views import (
     pdf,
+    json_csv,
     schedule,
     schedule_step,
     ical,
@@ -112,6 +113,13 @@ patterns_workout = [
     url(r'^(?P<day_pk>\d+)/timer$',
         workout.timer,
         name='timer'),
+    url(r'^(?P<id>\d+)/json/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})$',
+        json_csv.export_json,
+        name='json'),
+    url(r'^(?P<id>\d+)/csv/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})$',
+        json_csv.export_csv,
+        name='csv'),
+
 ]
 
 
